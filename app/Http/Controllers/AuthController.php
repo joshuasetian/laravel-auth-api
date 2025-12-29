@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -20,8 +21,31 @@ class AuthController extends Controller
 
         return response()->json([
             'messages' => 'Create account successfully!',
-            'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'user' => $user
         ],201);
+    }
+
+    public function login(Request $request) {
+        $validated = $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid email or password'
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successfully!',
+            'token' => $token,
+            'user' => $user
+        ], 200);
     }
 }
