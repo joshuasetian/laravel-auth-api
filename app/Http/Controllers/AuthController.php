@@ -20,7 +20,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'messages' => 'Create account successfully!',
+            'message' => 'Create account successfully!',
             'token' => $token,
             'user' => $user
         ],201);
@@ -47,5 +47,15 @@ class AuthController extends Controller
             'token' => $token,
             'user' => $user
         ], 200);
+    }
+
+    public function logout(Request $request) {
+        $user = $request->user();
+
+        $user->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Logout successfully!'
+        ],200);
     }
 }
